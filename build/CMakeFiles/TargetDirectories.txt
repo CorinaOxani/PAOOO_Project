@@ -1,0 +1,3 @@
+/home/user/Desktop/PAOO_Project/build/CMakeFiles/ParkingManager.dir
+/home/user/Desktop/PAOO_Project/build/CMakeFiles/edit_cache.dir
+/home/user/Desktop/PAOO_Project/build/CMakeFiles/rebuild_cache.dir
