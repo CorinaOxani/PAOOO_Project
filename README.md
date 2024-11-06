@@ -10,9 +10,11 @@
    git clone <repository-url>
 2. Build the project 
     run in terminal :
+    ```bash
     cd build
     cmake ..
     make
 3. Run the app :
+    ```bash
     ./ParkingManager
     
