@@ -1,54 +1,114 @@
 #include "ParkingSpot.h"
-#include <iostream>
 
-ParkingSpot::ParkingSpot(const std::string& id)
-    : spotID(new std::string(id)), isOccupied(false), vehicleNumber(new std::string("")) {
-    std::cout << "Parking spot " << *spotID << " has been created." << std::endl;
+// ==================== Constructori si Destructor ====================
+
+// Constructor normal
+ParkingSpot::ParkingSpot(const std::string& areaName, const std::string& id)
+    : ParkingArea(areaName), spotID(new std::string(id)), isOccupied(false), vehicleNumber(new std::string("")) {
+    std::cout << "ParkingSpot constructor called for : Spot " << *spotID << " from area " << areaName << ".\n";
 }
 
+// Destructor
 ParkingSpot::~ParkingSpot() {
-    std::cout << "Parking spot " << *spotID << " is being released from memory." << std::endl;
-    delete spotID;           // eliberarea memoriei spotID
-    delete vehicleNumber;     // eliberarea memoriei vehicleNumber
-}
-
-// Suprascrierea operatorului de asignare (=) deep copy
-ParkingSpot& ParkingSpot::operator=(const ParkingSpot& other) {
-    if (this == &other) {    // verificare daca deja sunt aceleasi obiecte
-        return *this;
-    }
-
-    // elibererarea memorie alocata anterior
+    std::cout << "ParkingSpot destructor: Spot " 
+              << (spotID ? *spotID : "[empty]") 
+              << " destroyed.\n";
     delete spotID;
     delete vehicleNumber;
+}
 
-    // alocare mem nouă, copiem valorile
-    spotID = new std::string(*other.spotID);
-    isOccupied = other.isOccupied;
-    vehicleNumber = new std::string(*other.vehicleNumber);
+// ==================== Copy ====================
 
-    std::cout << "Assignment operator: Parking spot " << *spotID << " has been assigned." << std::endl;
+// Copy constructor
+ParkingSpot::ParkingSpot(const ParkingSpot& other)
+    : ParkingArea(other.areaName), spotID(new std::string(*other.spotID)),
+      isOccupied(other.isOccupied), vehicleNumber(new std::string(*other.vehicleNumber)) {
+    std::cout << "ParkingSpot copy constructor: Copied spot " << *spotID << ".\n";
+}
+
+// Copy assignment operator
+ParkingSpot& ParkingSpot::operator=(const ParkingSpot& other) {
+    if (this != &other) {
+        ParkingArea::operator=(other); // Copiem partea de baza
+        delete spotID;
+        delete vehicleNumber;
+
+        spotID = new std::string(*other.spotID);
+        isOccupied = other.isOccupied;
+        vehicleNumber = new std::string(*other.vehicleNumber);
+
+        std::cout << "ParkingSpot copy assignment operator: Assigned spot " << *spotID << ".\n";
+    }
     return *this;
 }
 
+// ==================== Move ====================
+
+// Move constructor
+ParkingSpot::ParkingSpot(ParkingSpot&& other) noexcept
+    : ParkingArea(std::move(other)), spotID(other.spotID),
+      isOccupied(other.isOccupied), vehicleNumber(other.vehicleNumber) {
+    other.spotID = nullptr;
+    other.vehicleNumber = nullptr;
+    std::cout << "ParkingSpot move constructor: Moved spot.\n";
+}
+
+
+// Move assignment operator
+ParkingSpot& ParkingSpot::operator=(ParkingSpot&& other) noexcept {
+    if (this != &other) {
+        ParkingArea::operator=(std::move(other)); // Mutam partea de baza
+
+        if (spotID) delete spotID; // Eliberam memoria existenta
+        if (vehicleNumber) delete vehicleNumber;
+
+        spotID = other.spotID;
+        vehicleNumber = other.vehicleNumber;
+        isOccupied = other.isOccupied;
+
+        other.spotID = nullptr;
+        other.vehicleNumber = nullptr;
+
+        std::cout << "ParkingSpot move assignment operator: Moved spot.\n";
+    }
+    return *this;
+}
+
+// ==================== Functionalitati ====================
+
+// Rezerva locul
 void ParkingSpot::reserve(const std::string& vehicle) {
     if (!isOccupied) {
         *vehicleNumber = vehicle;
         isOccupied = true;
-        std::cout << "Reservation successful: Spot " << *spotID 
-                  << " is now occupied by vehicle " << *vehicleNumber << "." << std::endl;
+        std::cout << "Spot " << *spotID << " reserved for vehicle " << *vehicleNumber << ".\n";
     } else {
-        std::cout << "Error: Spot " << *spotID << " is already occupied by another vehicle." << std::endl;
+        std::cout << "Spot " << *spotID << " is already occupied.\n";
     }
 }
 
+// Elibereaza locul
 void ParkingSpot::release() {
     if (isOccupied) {
-        std::cout << "Release: Spot " << *spotID << " has been freed from vehicle " 
-                  << *vehicleNumber << "." << std::endl;
+        std::cout << "Spot " << *spotID << " released from vehicle " << *vehicleNumber << ".\n";
         vehicleNumber->clear();
         isOccupied = false;
     } else {
-        std::cout << "Spot " << *spotID << " is already free, no action needed." << std::endl;
+        std::cout << "Spot " << *spotID << " is already free.\n";
     }
+}
+
+// Afișeaza informațiile
+void ParkingSpot::displayInfo() const {
+    std::cout << "Spot ID: " << *spotID << " | Area: " << areaName
+              << " | Occupied: " << (isOccupied ? "Yes" : "No") << "\n";
+
+
+// Punctul 6 - Dezactivarea copiei (doar în teorie, implementarea rămâne pentru punctul 5)
+/*
+Daca am aplica `= delete` în fișierul .h pentru copy constructor sau copy assignment operator,
+codurile lor nu ar mai trebui implementate în acest fișier .cpp, deoarece compilatorul ar genera
+o eroare dacă cineva încearcă să le folosească.
+*/
+
 }
