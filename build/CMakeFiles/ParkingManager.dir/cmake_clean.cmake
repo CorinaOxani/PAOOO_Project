@@ -1,4 +1,5 @@
 file(REMOVE_RECURSE
+  "CMakeFiles/ParkingManager.dir/link.d"
   "CMakeFiles/ParkingManager.dir/src/ParkingSpot.cpp.o"
   "CMakeFiles/ParkingManager.dir/src/ParkingSpot.cpp.o.d"
   "CMakeFiles/ParkingManager.dir/src/main.cpp.o"

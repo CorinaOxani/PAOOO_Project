@@ -1,6 +1,7 @@
 CMakeFiles/ParkingManager.dir/src/main.cpp.o: \
  /home/user/Desktop/PAOO_Project/src/main.cpp /usr/include/stdc-predef.h \
  /home/user/Desktop/PAOO_Project/include/ParkingSpot.h \
+ /home/user/Desktop/PAOO_Project/include/ParkingArea.h \
  /usr/include/c++/13/string /usr/include/c++/13/bits/requires_hosted.h \
  /usr/include/x86_64-linux-gnu/c++/13/bits/c++config.h \
  /usr/include/x86_64-linux-gnu/c++/13/bits/os_defines.h \

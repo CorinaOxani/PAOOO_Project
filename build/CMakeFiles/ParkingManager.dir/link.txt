@@ -1,1 +1,1 @@
-/usr/bin/c++ -rdynamic CMakeFiles/ParkingManager.dir/src/main.cpp.o CMakeFiles/ParkingManager.dir/src/ParkingSpot.cpp.o -o ParkingManager
+/usr/bin/c++ -rdynamic -Wl,--dependency-file,CMakeFiles/ParkingManager.dir/link.d CMakeFiles/ParkingManager.dir/src/main.cpp.o CMakeFiles/ParkingManager.dir/src/ParkingSpot.cpp.o -o ParkingManager
