@@ -21,15 +21,20 @@ ParkingSpot::~ParkingSpot() {
 
 // Copy constructor
 ParkingSpot::ParkingSpot(const ParkingSpot& other)
-    : ParkingArea(other.areaName), spotID(new std::string(*other.spotID)),
-      isOccupied(other.isOccupied), vehicleNumber(new std::string(*other.vehicleNumber)) {
+    : ParkingArea(other.areaName), // Copierea manuală a zonei
+      spotID(new std::string(*other.spotID)),
+      isOccupied(other.isOccupied),
+      vehicleNumber(new std::string(*other.vehicleNumber)) {
     std::cout << "ParkingSpot copy constructor: Copied spot " << *spotID << ".\n";
 }
+
 
 // Copy assignment operator
 ParkingSpot& ParkingSpot::operator=(const ParkingSpot& other) {
     if (this != &other) {
-        ParkingArea::operator=(other); // Copiem partea de baza
+        // Copiere manuală a zonei în locul operatorului dezactivat
+        areaName = other.areaName;
+
         delete spotID;
         delete vehicleNumber;
 
@@ -41,6 +46,7 @@ ParkingSpot& ParkingSpot::operator=(const ParkingSpot& other) {
     }
     return *this;
 }
+
 
 // ==================== Move ====================
 
@@ -104,11 +110,6 @@ void ParkingSpot::displayInfo() const {
               << " | Occupied: " << (isOccupied ? "Yes" : "No") << "\n";
 
 
-// Punctul 6 - Dezactivarea copiei (doar în teorie, implementarea rămâne pentru punctul 5)
-/*
-Daca am aplica `= delete` în fișierul .h pentru copy constructor sau copy assignment operator,
-codurile lor nu ar mai trebui implementate în acest fișier .cpp, deoarece compilatorul ar genera
-o eroare dacă cineva încearcă să le folosească.
-*/
+
 
 }

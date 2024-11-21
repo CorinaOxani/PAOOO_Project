@@ -30,20 +30,7 @@ public:
 
     void displayInfo() const override;
 
-    // Punctul 6 - Dezactivarea copierii (explicație în comentarii)
-    /*
-    Dacă am vrea să dezactivăm copierea, am face următoarele modificări:
     
-    // Copy constructor dezactivat
-    ParkingSpot(const ParkingSpot& other) = delete;
-
-    // Copy assignment operator dezactivat
-    ParkingSpot& operator=(const ParkingSpot& other) = delete;
-
-    Explicație: Dezactivarea copiei ar preveni utilizarea accidentală a copierii
-    obiectelor ParkingSpot, mai ales având în vedere utilizarea resurselor dinamice
-    (`spotID` și `vehicleNumber`).
-    */
 };
 
 #endif // PARKINGSPOT_H

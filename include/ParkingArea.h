@@ -21,7 +21,15 @@ public:
         std::cout << "Parking Area: " << areaName << "\n";
     }
 
-    // Move assignment operator
+   // Dezactivăm copierea
+    ParkingArea(const ParkingArea&) = delete; // Copy constructor
+    ParkingArea& operator=(const ParkingArea&) = delete; // Copy assignment operator
+
+    // mutarea
+    ParkingArea(ParkingArea&& other) noexcept : areaName(std::move(other.areaName)) {
+        std::cout << "ParkingArea move constructor called.\n";
+    }
+
     ParkingArea& operator=(ParkingArea&& other) noexcept {
         if (this != &other) {
             areaName = std::move(other.areaName);
@@ -30,24 +38,7 @@ public:
         return *this;
     }
 
-    // Copy assignment operator
-    ParkingArea& operator=(const ParkingArea& other) {
-        if (this != &other) {
-            areaName = other.areaName;
-            std::cout << "ParkingArea copy assignment operator called.\n";
-        }
-        return *this;
-    }
-
-    // Copy constructor
-    ParkingArea(const ParkingArea& other) : areaName(other.areaName) {
-        std::cout << "ParkingArea copy constructor called.\n";
-    }
-
-    // Move constructor
-    ParkingArea(ParkingArea&& other) noexcept : areaName(std::move(other.areaName)) {
-        std::cout << "ParkingArea move constructor called.\n";
-    }
+    
 };
 
 #endif // PARKINGAREA_H
