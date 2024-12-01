@@ -1,10 +1,15 @@
 #include "ParkingSpot.h"
+#include <chrono>
+#include <thread>
 
-// ==================== Constructori si Destructor ====================
+// ==================== Constructori și Destructor ====================
 
 // Constructor normal
 ParkingSpot::ParkingSpot(const std::string& areaName, const std::string& id)
-    : ParkingArea(areaName), spotID(new std::string(id)), isOccupied(false), vehicleNumber(new std::string("")) {
+    : ParkingArea(areaName), 
+      spotID(std::make_unique<std::string>(id)), 
+      vehicleNumber(std::make_shared<std::string>("")),
+      isOccupied(false) {
     std::cout << "ParkingSpot constructor called for : Spot " << *spotID << " from area " << areaName << ".\n";
 }
 
@@ -13,103 +18,77 @@ ParkingSpot::~ParkingSpot() {
     std::cout << "ParkingSpot destructor: Spot " 
               << (spotID ? *spotID : "[empty]") 
               << " destroyed.\n";
-    delete spotID;
-    delete vehicleNumber;
 }
-
-// ==================== Copy ====================
-
-// Copy constructor
-ParkingSpot::ParkingSpot(const ParkingSpot& other)
-    : ParkingArea(other.areaName), // Copierea manuală a zonei
-      spotID(new std::string(*other.spotID)),
-      isOccupied(other.isOccupied),
-      vehicleNumber(new std::string(*other.vehicleNumber)) {
-    std::cout << "ParkingSpot copy constructor: Copied spot " << *spotID << ".\n";
-}
-
-
-// Copy assignment operator
-ParkingSpot& ParkingSpot::operator=(const ParkingSpot& other) {
-    if (this != &other) {
-        // Copiere manuală a zonei în locul operatorului dezactivat
-        areaName = other.areaName;
-
-        delete spotID;
-        delete vehicleNumber;
-
-        spotID = new std::string(*other.spotID);
-        isOccupied = other.isOccupied;
-        vehicleNumber = new std::string(*other.vehicleNumber);
-
-        std::cout << "ParkingSpot copy assignment operator: Assigned spot " << *spotID << ".\n";
-    }
-    return *this;
-}
-
 
 // ==================== Move ====================
 
 // Move constructor
 ParkingSpot::ParkingSpot(ParkingSpot&& other) noexcept
-    : ParkingArea(std::move(other)), spotID(other.spotID),
-      isOccupied(other.isOccupied), vehicleNumber(other.vehicleNumber) {
-    other.spotID = nullptr;
-    other.vehicleNumber = nullptr;
+    : ParkingArea(std::move(other)),
+      spotID(std::move(other.spotID)),
+      vehicleNumber(std::move(other.vehicleNumber)),
+      isOccupied(other.isOccupied) {
+    other.isOccupied = false;
     std::cout << "ParkingSpot move constructor: Moved spot.\n";
 }
-
 
 // Move assignment operator
 ParkingSpot& ParkingSpot::operator=(ParkingSpot&& other) noexcept {
     if (this != &other) {
-        ParkingArea::operator=(std::move(other)); // Mutam partea de baza
-
-        if (spotID) delete spotID; // Eliberam memoria existenta
-        if (vehicleNumber) delete vehicleNumber;
-
-        spotID = other.spotID;
-        vehicleNumber = other.vehicleNumber;
+        ParkingArea::operator=(std::move(other));
+        spotID = std::move(other.spotID);
+        vehicleNumber = std::move(other.vehicleNumber);
         isOccupied = other.isOccupied;
-
-        other.spotID = nullptr;
-        other.vehicleNumber = nullptr;
-
+        other.isOccupied = false;
         std::cout << "ParkingSpot move assignment operator: Moved spot.\n";
     }
     return *this;
 }
 
-// ==================== Functionalitati ====================
+// ==================== Funcționalități ====================
 
-// Rezerva locul
+// Rezervă locul
 void ParkingSpot::reserve(const std::string& vehicle) {
-    if (!isOccupied) {
-        *vehicleNumber = vehicle;
-        isOccupied = true;
-        std::cout << "Spot " << *spotID << " reserved for vehicle " << *vehicleNumber << ".\n";
+    if (spotMutex.try_lock()) { // blocare mutex
+        std::cout << "Spot " << *spotID << " is now locked by thread for reservation.\n";
+        std::this_thread::sleep_for(std::chrono::milliseconds(200)); // Simulare proces lung
+        if (!isOccupied) {
+            *vehicleNumber = vehicle;
+            isOccupied = true;
+            std::cout << "Spot " << *spotID << " reserved for vehicle " << *vehicleNumber << ".\n";
+        } else {
+            std::cout << "Spot " << *spotID << " is already occupied.\n";
+        }
+        spotMutex.unlock(); // Deblocare mutex
+        std::cout << "Spot " << *spotID << " is now unlocked after reservation.\n";
     } else {
-        std::cout << "Spot " << *spotID << " is already occupied.\n";
+        std::cout << "Spot " << *spotID << " is currently locked by another thread. Reservation failed.\n";
     }
 }
 
-// Elibereaza locul
+// Eliberează locul
 void ParkingSpot::release() {
-    if (isOccupied) {
-        std::cout << "Spot " << *spotID << " released from vehicle " << *vehicleNumber << ".\n";
-        vehicleNumber->clear();
-        isOccupied = false;
+    std::this_thread::sleep_for(std::chrono::milliseconds(50)); // Simulare intarziere
+    if (spotMutex.try_lock()) { // blocare mutex
+        std::cout << "Spot " << *spotID << " is now locked by thread for release.\n";
+        std::this_thread::sleep_for(std::chrono::milliseconds(200)); // Simulare proces lung
+        if (isOccupied) {
+            std::cout << "Spot " << *spotID << " released from vehicle " << *vehicleNumber << ".\n";
+            vehicleNumber->clear();
+            isOccupied = false;
+        } else {
+            std::cout << "Spot " << *spotID << " is already free.\n";
+        }
+        spotMutex.unlock(); // Deblocare mutex
+        std::cout << "Spot " << *spotID << " is now unlocked after release.\n";
     } else {
-        std::cout << "Spot " << *spotID << " is already free.\n";
+        std::cout << "Spot " << *spotID << " is currently locked by another thread. Release failed.\n";
     }
 }
 
-// Afișeaza informațiile
+// Afișează informațiile
 void ParkingSpot::displayInfo() const {
+    std::lock_guard<std::mutex> lock(spotMutex); // Blocăm accesul
     std::cout << "Spot ID: " << *spotID << " | Area: " << areaName
               << " | Occupied: " << (isOccupied ? "Yes" : "No") << "\n";
-
-
-
-
 }
